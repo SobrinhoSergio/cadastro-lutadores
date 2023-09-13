@@ -2,16 +2,21 @@
 
 require_once 'conexao.php';
 
-$stmt = $pdo->prepare("
-    SELECT *,
+$stmt1 = $pdo->prepare("
+    SELECT * FROM lutador
+");
+
+$stmt2 = $pdo->prepare("
+    SELECT
         (SELECT COUNT(*) FROM lutador) AS total_lutadores,
         (SELECT AVG(altura) FROM lutador) AS media_alturas,
         (SELECT MAX(altura) FROM lutador) AS maior_altura,
         (SELECT MAX(peso) FROM lutador) AS maior_peso
-    FROM lutador
 ");
 
-$stmt->execute();
+$stmt1->execute();
+$stmt2->execute();
+
 
 function gerarLinhasThead() {
     echo '<thead>
@@ -27,9 +32,9 @@ function gerarLinhasThead() {
         </thead>';
 }
 
-function gerarLinhasTbody($stmt) {
+function gerarLinhasTbody($stmt1) {
     echo '<tbody>'; 
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    while ($row = $stmt1->fetch(PDO::FETCH_ASSOC)) {
         echo "<tr>";
         echo "<td>" . $row['id'] . "</td>";
         echo "<td>" . $row['nome'] . "</td>";
@@ -60,14 +65,14 @@ function gerarLinhasTfoot($totalLutadores, $mediaAlturas, $maiorAltura, $maiorPe
         </tfoot>';
 }
 
-$infoEstatisticas = $stmt->fetch(PDO::FETCH_ASSOC);
+$infoEstatisticas = $stmt2->fetch(PDO::FETCH_ASSOC);
 $totalLutadores = $infoEstatisticas['total_lutadores'];
 $mediaAlturas = $infoEstatisticas['media_alturas'];
 $maiorAltura = $infoEstatisticas['maior_altura'];
 $maiorPeso = $infoEstatisticas['maior_peso'];
 
 gerarLinhasThead();
-gerarLinhasTbody($stmt);
+gerarLinhasTbody($stmt1);
 gerarLinhasTfoot($totalLutadores, $mediaAlturas, $maiorAltura, $maiorPeso);
 
 
